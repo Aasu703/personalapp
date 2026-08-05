@@ -10,12 +10,18 @@ abstract class AuthRepository {
     required String password,
   });
 
+  Future<AuthResult> verifyOtp({required String email, required String otp});
+
+  Future<AuthResult> resendOtp({required String email});
+
   Future<AuthResult> forgotPassword({required String email});
 
   Future<AuthResult> resetPassword({
     required String email,
     required String password,
   });
+
+  Future<AuthResult> getMe();
 
   Future<void> logout();
 }
