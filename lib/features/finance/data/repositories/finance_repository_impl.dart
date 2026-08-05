@@ -75,9 +75,9 @@ class FinanceRepositoryImpl implements FinanceRepository {
         '/api/finance/transactions/$id',
         data: {
           if (type != null) 'type': type.name,
-          if (amount != null) 'amount': amount,
-          if (category != null) 'category': category,
-          if (note != null) 'note': note,
+          'amount': ?amount,
+          'category': ?category,
+          'note': ?note,
           if (occurredAt != null) 'occurredAt': occurredAt.toIso8601String(),
         },
       );

@@ -42,7 +42,7 @@ class SleepRepositoryImpl implements SleepRepository {
         data: {
           'sleepAt': sleepAt.toIso8601String(),
           'wokeAt': wokeAt.toIso8601String(),
-          if (quality != null) 'quality': quality,
+          'quality': ?quality,
           if (note != null && note.isNotEmpty) 'note': note,
         },
       );
@@ -66,8 +66,8 @@ class SleepRepositoryImpl implements SleepRepository {
         data: {
           if (sleepAt != null) 'sleepAt': sleepAt.toIso8601String(),
           if (wokeAt != null) 'wokeAt': wokeAt.toIso8601String(),
-          if (quality != null) 'quality': quality,
-          if (note != null) 'note': note,
+          'quality': ?quality,
+          'note': ?note,
         },
       );
       return SleepLogModel.fromJson(_object(response, 'log'));

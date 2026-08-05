@@ -67,8 +67,8 @@ class TodoRepositoryImpl implements TodoRepository {
       final response = await _dio.patch(
         '/api/todos/$id',
         data: {
-          if (title != null) 'title': title,
-          if (description != null) 'description': description,
+          'title': ?title,
+          'description': ?description,
           if (dueDate != null) 'dueDate': dueDate.toIso8601String(),
           if (priority != null) 'priority': priority.name,
         },
