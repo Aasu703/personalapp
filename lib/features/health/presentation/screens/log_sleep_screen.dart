@@ -115,7 +115,6 @@ class _LogSleepScreenState extends ConsumerState<LogSleepScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(_editing != null ? 'Edit sleep' : 'Log sleep')),
       body: SafeArea(

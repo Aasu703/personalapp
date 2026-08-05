@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../../core/auth/session_store.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../domain/entities/auth_result.dart';
@@ -7,11 +8,14 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 /// Real API-backed implementation using the shared [Dio] instance. The backend
-/// sets httpOnly session cookies, which the persistent cookie jar handles.
+/// returns a bearer `accessToken` and a `csrfToken` in the JSON body (plus an
+/// httpOnly refresh cookie), so successful auth responses are persisted into
+/// the [SessionStore] for the interceptor to attach.
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._dio);
+  AuthRepositoryImpl(this._dio, this._sessionStore);
 
   final Dio _dio;
+  final SessionStore _sessionStore;
 
   @override
   Future<AuthResult> login({
@@ -24,6 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
         data: {'email': email, 'password': password},
       );
       final data = ApiClient.data(response);
+      await _storeTokensFrom(data);
       final userJson = data['user'];
       return AuthResult.success(
         user: userJson is Map ? User.fromJson(Map<String, dynamic>.from(userJson)) : null,
@@ -89,12 +94,13 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthResult> resetPassword({
     required String email,
+    required String token,
     required String password,
   }) async {
     try {
       await _dio.post(
         '/api/auth/reset-password',
-        data: {'email': email, 'newPassword': password},
+        data: {'email': email, 'token': token, 'newPassword': password},
       );
       return const AuthResult.success();
     } on DioException catch (e) {
@@ -123,6 +129,19 @@ class AuthRepositoryImpl implements AuthRepository {
       await _dio.post('/api/auth/logout');
     } on DioException {
       // Best-effort: the local session is cleared by the caller regardless.
+    } finally {
+      await _sessionStore.clear();
+    }
+  }
+
+  Future<void> _storeTokensFrom(Map<String, dynamic> data) async {
+    final accessToken = data['accessToken'];
+    final csrfToken = data['csrfToken'];
+    if (accessToken is String && accessToken.isNotEmpty) {
+      await _sessionStore.setTokens(
+        accessToken: accessToken,
+        csrfToken: csrfToken is String ? csrfToken : null,
+      );
     }
   }
 

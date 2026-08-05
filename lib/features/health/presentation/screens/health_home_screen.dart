@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/route_paths.dart';
-import '../../domain/entities/sleep_log.dart';
 import '../../domain/entities/sleep_stats.dart';
 import '../providers/sleep_providers.dart';
 import '../widgets/sleep_entry_tile.dart';
@@ -142,7 +141,7 @@ class _TrendBars extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${point.durationMinutes.toStringAsFixed(0)}',
+                    point.durationMinutes.toStringAsFixed(0),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),

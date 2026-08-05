@@ -44,7 +44,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
       initialDate: _occurredAt,

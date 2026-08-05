@@ -18,6 +18,7 @@ abstract class AuthRepository {
 
   Future<AuthResult> resetPassword({
     required String email,
+    required String token,
     required String password,
   });
 

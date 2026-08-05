@@ -114,7 +114,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<bool> _refresh() async {
-    final response = await dio.post<void>('/api/auth/refresh');
+    final response = await dio.post('/api/auth/refresh');
     if (response.statusCode == 200) {
       final body = response.data;
       if (body is Map && body['success'] == true) {

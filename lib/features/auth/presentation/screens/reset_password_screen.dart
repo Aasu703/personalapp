@@ -20,6 +20,7 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
@@ -37,6 +38,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _tokenController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -49,6 +51,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
     final AuthResult result = await ref.read(resetPasswordProvider).call(
       email: _emailController.text.trim(),
+      token: _tokenController.text.trim(),
       password: _passwordController.text,
     );
 
@@ -96,6 +99,18 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   prefixIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   enabled: false,
+                ),
+                const SizedBox(height: 16),
+                AuthTextField(
+                  controller: _tokenController,
+                  label: 'Reset token',
+                  hint: 'Paste the token from your reset email',
+                  prefixIcon: Icons.key_outlined,
+                  textInputAction: TextInputAction.next,
+                  validator: (value) =>
+                      (value == null || value.trim().isEmpty)
+                      ? 'Enter the reset token'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 PasswordField(

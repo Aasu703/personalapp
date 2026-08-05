@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/route_paths.dart';
 import '../../../core/di/providers.dart';
-import '../../finance/domain/entities/finance_summary.dart';
 import '../../finance/presentation/providers/finance_providers.dart';
 import '../../health/domain/entities/sleep_log.dart';
 import '../../health/presentation/providers/sleep_providers.dart';

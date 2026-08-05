@@ -6,7 +6,11 @@ class ResetPassword {
 
   final AuthRepository _repository;
 
-  Future<AuthResult> call({required String email, required String password}) {
-    return _repository.resetPassword(email: email, password: password);
+  Future<AuthResult> call({
+    required String email,
+    required String token,
+    required String password,
+  }) {
+    return _repository.resetPassword(email: email, token: token, password: password);
   }
 }

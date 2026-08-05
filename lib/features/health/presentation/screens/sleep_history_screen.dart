@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/route_paths.dart';
 import '../../../../core/di/providers.dart';
-import '../../domain/entities/sleep_log.dart';
 import '../providers/sleep_providers.dart';
 import '../widgets/sleep_entry_tile.dart';
 
