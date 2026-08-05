@@ -85,6 +85,14 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
+    // No session at all (fresh install or logged out) — nothing to refresh and
+    // nothing to expire. Callers (e.g. the splash screen's `/me` probe) are
+    // expected to handle the 401 and route to onboarding themselves.
+    if (sessionStore.accessToken == null && sessionStore.csrfToken == null) {
+      handler.next(err);
+      return;
+    }
+
     final isAuthFailure =
         status == 401 || (status == 403 && path.startsWith('/api/auth/logout'));
 

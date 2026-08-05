@@ -63,7 +63,12 @@ anything touching the contract above.
   in-memory and persisted in `flutter_secure_storage`); `AuthInterceptor` now
   sends `Authorization: Bearer` on all non-public routes and `X-CSRF-Token` on
   `/refresh`/`/logout`, refreshes once on 401 (and on 403 from logout) and
-  clears the session on refresh failure. `AuthRepositoryImpl` stores
-  `accessToken`/`csrfToken` from the login JSON body; reset-password now sends
-  `token` (new field on the reset screen, required by the backend DTO). Marked
-  issues #2 and #3 resolved, #5 partial. `flutter analyze`: 0 issues.
+  clears the session on refresh failure. With no stored session it does not
+  attempt refresh at all, so a fresh-install `/me` 401 routes to onboarding
+  instead of login. `AuthRepositoryImpl` stores `accessToken`/`csrfToken` from
+  the login JSON body; reset-password now sends `token` (new field on the reset
+  screen, required by the backend DTO). Marked issues #2 and #3 resolved, #5
+  partial. `test/widget_test.dart` rewritten with a fake `AuthRepository` +
+  `TestFlutterSecureStoragePlatform` (added `flutter_secure_storage_platform_interface`
+  as a dev dep) so the splash/onboarding/login flow tests again. `flutter
+  analyze`: 0 issues; `flutter test`: 3 passing.
