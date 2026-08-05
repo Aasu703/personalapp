@@ -5,19 +5,22 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 
+import '../auth/session_store.dart';
 import '../config/app_config.dart';
+import 'api_exception.dart';
 import 'auth_interceptor.dart';
 
 /// Single [Dio] instance shared across all repositories.
 ///
-/// The backend authenticates with httpOnly cookies, so a persistent cookie
-/// jar is attached via [CookieManager] so the session survives app restarts
-/// exactly like a browser would hold it.
+/// The backend issues a bearer `accessToken` in the JSON body plus a httpOnly
+/// refresh cookie. A persistent cookie jar holds the cookies while the
+/// [AuthInterceptor] attaches the bearer token and CSRF headers.
 class ApiClient {
   ApiClient._();
 
   static Dio create({
     PersistCookieJar? cookieJar,
+    required SessionStore sessionStore,
     required Future<void> Function() onSessionExpired,
   }) {
     final dio = Dio(
@@ -34,7 +37,11 @@ class ApiClient {
     if (!kIsWeb && cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }
-    dio.interceptors.add(AuthInterceptor(dio: dio, onSessionExpired: onSessionExpired));
+    dio.interceptors.add(AuthInterceptor(
+      dio: dio,
+      sessionStore: sessionStore,
+      onSessionExpired: onSessionExpired,
+    ));
 
     return dio;
   }

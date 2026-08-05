@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../domain/entities/sleep_log.dart';
+import '../../domain/entities/sleep_log.dart';
 
 /// A single sleep history row with an optional delete action.
 class SleepEntryTile extends StatelessWidget {

@@ -1,4 +1,4 @@
-import '../entities/transaction.dart';
+import '../../domain/entities/transaction.dart';
 
 class TransactionModel {
   const TransactionModel._();

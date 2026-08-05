@@ -95,25 +95,19 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  String _lastSleepLabel(List<dynamic>? logs) {
+  String _lastSleepLabel(List<SleepLog>? logs) {
     if (logs == null || logs.isEmpty) return 'No entries yet';
-    final last = logs.reduce((a, b) {
-      final ta = (a as dynamic).sleepAt;
-      final tb = (b as dynamic).sleepAt;
-      return ta.isAfter(tb) ? a : b;
-    });
-    final hours = ((last as dynamic).durationMinutes / 60).toStringAsFixed(1);
-    return '$hours hrs';
+    final last = logs.reduce((a, b) => b.sleepAt.isAfter(a.sleepAt) ? b : a);
+    return '${(last.durationMinutes / 60).toStringAsFixed(1)} hrs';
   }
 
-  String _dueTodayLabel(List<dynamic>? todos) {
+  String _dueTodayLabel(List<Todo>? todos) {
     if (todos == null) return '--';
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final dueToday = todos.where((t) {
-      final due = (t as dynamic).dueDate;
-      final status = (t as dynamic).status?.name ?? 'pending';
-      if (due == null || status == 'completed') return false;
+    final dueToday = todos.where((todo) {
+      final due = todo.dueDate;
+      if (due == null || todo.status == TodoStatus.completed) return false;
       final day = DateTime(due.year, due.month, due.day);
       return !day.isBefore(today);
     }).length;

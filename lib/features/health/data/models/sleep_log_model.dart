@@ -1,4 +1,4 @@
-import '../entities/sleep_log.dart';
+import '../../domain/entities/sleep_log.dart';
 
 class SleepLogModel {
   const SleepLogModel._();

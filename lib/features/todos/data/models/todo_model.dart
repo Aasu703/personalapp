@@ -1,4 +1,4 @@
-import '../entities/todo.dart';
+import '../../domain/entities/todo.dart';
 
 class TodoModel {
   const TodoModel._();

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../auth/session_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -32,12 +33,20 @@ final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),
 );
 
+/// Bearer/CSRF tokens for the current session. Overridden in `main()`.
+final sessionStoreProvider = Provider<SessionStore>(
+  (ref) => throw UnimplementedError('sessionStoreProvider is overridden in main()'),
+);
+
 /// Currently signed-in user, if any.
 final currentUserProvider = StateProvider<User?>((ref) => null);
 
 // ---- Auth ----
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => AuthRepositoryImpl(dio: ref.watch(dioProvider)),
+  (ref) => AuthRepositoryImpl(
+    ref.watch(dioProvider),
+    ref.watch(sessionStoreProvider),
+  ),
 );
 
 final loginProvider = Provider<Login>((ref) => Login(ref.watch(authRepositoryProvider)));

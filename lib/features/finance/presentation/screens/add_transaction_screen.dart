@@ -151,14 +151,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   runSpacing: 8,
                   children: _suggestedCategories.map((category) {
                     final selected = _categoryController.text.trim() == category;
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(24),
-                      onTap: () {
+                    return CategoryChip(
+                      category: category,
+                      selected: selected,
+                      onSelected: (_) {
                         setState(() {
                           _categoryController.text = selected ? '' : category;
                         });
                       },
-                      child: CategoryChip(category: category, selected: selected),
                     );
                   }).toList(),
                 ),

@@ -1,4 +1,4 @@
-import '../entities/finance_summary.dart';
+import '../../domain/entities/finance_summary.dart';
 
 class FinanceSummaryModel {
   const FinanceSummaryModel._();

@@ -63,6 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (result.isSuccess) {
       await _persistRememberedEmail();
+      if (!mounted) return;
       if (result.user != null) {
         ref.read(currentUserProvider.notifier).state = result.user;
       }

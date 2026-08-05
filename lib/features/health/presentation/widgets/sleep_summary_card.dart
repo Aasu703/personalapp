@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/sleep_log.dart';
-import '../../../domain/entities/sleep_stats.dart';
+import '../../domain/entities/sleep_log.dart';
+import '../../domain/entities/sleep_stats.dart';
 
 /// Summary card for the health home screen showing the most recent sleep.
 class SleepSummaryCard extends StatelessWidget {

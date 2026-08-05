@@ -9,7 +9,7 @@ import '../../domain/repositories/auth_repository.dart';
 /// Real API-backed implementation using the shared [Dio] instance. The backend
 /// sets httpOnly session cookies, which the persistent cookie jar handles.
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({required Dio dio}) : _dio = dio;
+  AuthRepositoryImpl(this._dio);
 
   final Dio _dio;
 

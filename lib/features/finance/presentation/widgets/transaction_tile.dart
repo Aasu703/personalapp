@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../domain/entities/transaction.dart';
+import '../../domain/entities/transaction.dart';
 
 /// A single transaction row with signed amount and category.
 class TransactionTile extends StatelessWidget {

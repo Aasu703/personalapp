@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../domain/entities/finance_summary.dart';
+import '../../domain/entities/finance_summary.dart';
 
 /// Balance overview card for the finance home screen.
 class BalanceCard extends StatelessWidget {

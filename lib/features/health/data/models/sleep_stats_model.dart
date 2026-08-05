@@ -1,4 +1,4 @@
-import '../entities/sleep_stats.dart';
+import '../../domain/entities/sleep_stats.dart';
 
 class SleepStatsModel {
   const SleepStatsModel._();
