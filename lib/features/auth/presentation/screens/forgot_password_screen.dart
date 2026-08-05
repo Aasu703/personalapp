@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/route_paths.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../domain/entities/auth_result.dart';
-import '../../domain/usecases/forgot_password.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_text_field.dart';
 
-class ForgotPasswordScreen extends StatefulWidget {
+class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final ForgotPassword _forgotPassword = ForgotPassword(
-    ServiceLocator.instance.authRepository,
-  );
 
   bool _submitting = false;
 
@@ -36,9 +33,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _submitting = true);
 
-    final AuthResult result = await _forgotPassword.call(
-      email: _emailController.text.trim(),
-    );
+    final AuthResult result = await ref
+        .read(forgotPasswordProvider)
+        .call(email: _emailController.text.trim());
 
     if (!mounted) return;
     setState(() => _submitting = false);

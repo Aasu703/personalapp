@@ -1,22 +1,28 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/route_paths.dart';
+import '../../../core/di/providers.dart';
+import '../../auth/domain/entities/auth_result.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fade;
   late final Animation<double> _scale;
   Timer? _timer;
+  bool _authChecked = false;
+  bool _timerDone = false;
+  bool _loggedIn = false;
 
   @override
   void initState() {
@@ -31,7 +37,11 @@ class _SplashScreenState extends State<SplashScreen>
       end: 1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
-    _timer = Timer(const Duration(seconds: 3), _goToNext);
+    _timer = Timer(const Duration(seconds: 2), () {
+      _timerDone = true;
+      _goToNext();
+    });
+    _checkSession();
   }
 
   @override
@@ -41,9 +51,21 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  void _goToNext() {
+  Future<void> _checkSession() async {
+    final AuthResult result = await ref.read(authRepositoryProvider).getMe();
     if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed(RoutePaths.onboarding);
+    if (result.isSuccess && result.user != null) {
+      _loggedIn = true;
+      ref.read(currentUserProvider.notifier).state = result.user;
+    }
+    _authChecked = true;
+    if (_timerDone) _goToNext();
+  }
+
+  void _goToNext() {
+    if (!mounted || !_authChecked) return;
+    final destination = _loggedIn ? RoutePaths.home : RoutePaths.onboarding;
+    Navigator.of(context).pushReplacementNamed(destination);
   }
 
   @override

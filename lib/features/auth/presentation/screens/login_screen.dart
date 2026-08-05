@@ -1,30 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/route_paths.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../domain/entities/auth_result.dart';
-import '../../domain/usecases/login.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/password_field.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final Login _login = Login(ServiceLocator.instance.authRepository);
 
   bool _rememberMe = false;
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreRememberedEmail();
+  }
+
+  Future<void> _restoreRememberedEmail() async {
+    final remembered = await ref.read(secureStorageProvider).read(key: 'remembered_email');
+    if (remembered != null && remembered.isNotEmpty && mounted) {
+      setState(() {
+        _emailController.text = remembered;
+        _rememberMe = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -38,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _submitting = true);
 
-    final AuthResult result = await _login.call(
+    final AuthResult result = await ref.read(loginProvider).call(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -47,11 +62,28 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _submitting = false);
 
     if (result.isSuccess) {
+      await _persistRememberedEmail();
+      if (!mounted) return;
+      if (result.user != null) {
+        ref.read(currentUserProvider.notifier).state = result.user;
+      }
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(RoutePaths.home, (route) => false);
     } else {
       _showMessage(result.message ?? 'Unable to sign in. Please try again.');
+    }
+  }
+
+  Future<void> _persistRememberedEmail() async {
+    const key = 'remembered_email';
+    if (_rememberMe) {
+      await ref.read(secureStorageProvider).write(
+        key: key,
+        value: _emailController.text.trim(),
+      );
+    } else {
+      await ref.read(secureStorageProvider).delete(key: key);
     }
   }
 

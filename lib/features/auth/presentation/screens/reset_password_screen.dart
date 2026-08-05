@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/route_paths.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../domain/entities/auth_result.dart';
-import '../../domain/usecases/reset_password.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/password_field.dart';
 
-class ResetPasswordScreen extends StatefulWidget {
+class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  final ResetPassword _resetPassword = ResetPassword(
-    ServiceLocator.instance.authRepository,
-  );
 
   bool _submitting = false;
 
@@ -40,6 +38,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _tokenController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -50,8 +49,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _submitting = true);
 
-    final AuthResult result = await _resetPassword.call(
+    final AuthResult result = await ref.read(resetPasswordProvider).call(
       email: _emailController.text.trim(),
+      token: _tokenController.text.trim(),
       password: _passwordController.text,
     );
 
@@ -99,6 +99,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   prefixIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   enabled: false,
+                ),
+                const SizedBox(height: 16),
+                AuthTextField(
+                  controller: _tokenController,
+                  label: 'Reset token',
+                  hint: 'Paste the token from your reset email',
+                  prefixIcon: Icons.key_outlined,
+                  textInputAction: TextInputAction.next,
+                  validator: (value) =>
+                      (value == null || value.trim().isEmpty)
+                      ? 'Enter the reset token'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 PasswordField(

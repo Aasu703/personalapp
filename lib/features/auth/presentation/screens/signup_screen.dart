@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/route_paths.dart';
-import '../../../../core/di/service_locator.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../domain/entities/auth_result.dart';
-import '../../domain/usecases/signup.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/password_field.dart';
 
-class SignupScreen extends StatefulWidget {
+class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  final Signup _signup = Signup(ServiceLocator.instance.authRepository);
 
   bool _agreedToTerms = false;
   bool _submitting = false;
@@ -46,7 +45,7 @@ class _SignupScreenState extends State<SignupScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _submitting = true);
 
-    final AuthResult result = await _signup.call(
+    final AuthResult result = await ref.read(signupProvider).call(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -58,7 +57,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (result.isSuccess) {
       Navigator.of(
         context,
-      ).pushNamedAndRemoveUntil(RoutePaths.home, (route) => false);
+      ).pushReplacementNamed(RoutePaths.verifyOtp, arguments: _emailController.text.trim());
     } else {
       _showMessage(
         result.message ?? 'Unable to create account. Please try again.',
