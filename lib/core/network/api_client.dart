@@ -4,6 +4,8 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:talker/talker.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 import '../auth/session_store.dart';
 import '../config/app_config.dart';
@@ -22,6 +24,7 @@ class ApiClient {
     PersistCookieJar? cookieJar,
     required SessionStore sessionStore,
     required Future<void> Function() onSessionExpired,
+    Talker? talker,
   }) {
     final dio = Dio(
       BaseOptions(
@@ -42,6 +45,27 @@ class ApiClient {
       sessionStore: sessionStore,
       onSessionExpired: onSessionExpired,
     ));
+    if (talker != null) {
+      dio.interceptors.add(
+        TalkerDioLogger(
+          talker: talker,
+          settings: const TalkerDioLoggerSettings(
+            printRequestHeaders: true,
+            printResponseHeaders: false,
+            printResponseData: true,
+            printErrorData: true,
+            printErrorHeaders: true,
+            hiddenHeaders: {
+              // Never leak credentials in logs.
+              'Authorization',
+              'X-CSRF-Token',
+              'Cookie',
+              'Set-Cookie',
+            },
+          ),
+        ),
+      );
+    }
 
     return dio;
   }

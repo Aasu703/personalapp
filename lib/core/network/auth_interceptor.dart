@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 
 import '../auth/session_store.dart';
+import '../logger/app_logger.dart';
+import 'api_exception.dart';
 
 /// Attaches the bearer `Authorization` header to authenticated requests and
 /// the `X-CSRF-Token` header to the CSRF-protected refresh/logout endpoints.
@@ -122,6 +124,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<bool> _refresh() async {
+    AppLogger.verbose('Attempting token refresh for expired session');
     final response = await dio.post('/api/auth/refresh');
     if (response.statusCode == 200) {
       final body = response.data;
@@ -135,15 +138,24 @@ class AuthInterceptor extends Interceptor {
               accessToken: accessToken,
               csrfToken: csrfToken is String ? csrfToken : null,
             );
+            AppLogger.verbose('Token refresh succeeded');
             return true;
           }
         }
       }
     }
+    AppLogger.warning(
+      'Token refresh failed',
+      ApiException.fromDio(DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+      )),
+    );
     return false;
   }
 
   Future<void> _expire() async {
+    AppLogger.warning('Session expired, clearing local session');
     await sessionStore.clear();
     await onSessionExpired();
   }

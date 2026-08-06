@@ -2,8 +2,10 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:talker/talker.dart';
 
 import '../auth/session_store.dart';
+import '../logger/app_logger.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -28,6 +30,9 @@ final cookieJarProvider = Provider<PersistCookieJar>(
 final dioProvider = Provider<Dio>(
   (ref) => throw UnimplementedError('dioProvider is overridden in main()'),
 );
+
+/// Shared logging sink powered by Talker.
+final talkerProvider = Provider<Talker>((ref) => AppLogger.talker);
 
 final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),

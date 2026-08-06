@@ -8,6 +8,7 @@ import 'app/app.dart';
 import 'core/auth/session_store.dart';
 import 'core/constants/route_paths.dart';
 import 'core/di/providers.dart';
+import 'core/logger/app_logger.dart';
 import 'core/navigation/app_navigator.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/persistent_cookie_jar.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
   final dio = ApiClient.create(
     cookieJar: cookieJar,
     sessionStore: sessionStore,
+    talker: AppLogger.talker,
     onSessionExpired: () async {
       await cookieJar?.deleteAll();
       container.read(currentUserProvider.notifier).state = null;
