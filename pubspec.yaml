@@ -41,6 +41,8 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   intl: ^0.20.3
   path_provider: ^2.1.6
+  talker: ^5.1.20
+  talker_dio_logger: ^5.1.20
 
 dev_dependencies:
   flutter_test:
