@@ -1,4 +1,3 @@
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,7 +5,7 @@ import 'package:talker/talker.dart';
 
 import '../auth/session_store.dart';
 import '../logger/app_logger.dart';
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository_impl.dart';
 import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/forgot_password.dart';
@@ -23,9 +22,6 @@ import '../../features/todos/data/repositories/todo_repository_impl.dart';
 import '../../features/todos/domain/repositories/todo_repository.dart';
 
 /// Overridden in `main()` with the pre-built instances.
-final cookieJarProvider = Provider<PersistCookieJar>(
-  (ref) => throw UnimplementedError('cookieJarProvider is overridden in main()'),
-);
 
 final dioProvider = Provider<Dio>(
   (ref) => throw UnimplementedError('dioProvider is overridden in main()'),
@@ -48,10 +44,7 @@ final currentUserProvider = StateProvider<User?>((ref) => null);
 
 // ---- Auth ----
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => AuthRepositoryImpl(
-    ref.watch(dioProvider),
-    ref.watch(sessionStoreProvider),
-  ),
+  (ref) => FirebaseAuthRepositoryImpl(),
 );
 
 final loginProvider = Provider<Login>((ref) => Login(ref.watch(authRepositoryProvider)));
