@@ -1,0 +1,80 @@
+env_file = File.expand_path("../../.env", __dir__)
+Dotenv.overload(env_file) if File.exist?(env_file)
+
+default_platform(:ios)
+
+FLUTTER_CMD = ENV["FVM"] == "false" ? "flutter" : "fvm flutter"
+
+platform :ios do
+  before_all do
+    sh("cd ../.. && #{FLUTTER_CMD} pub get")
+  end
+
+  private_lane :connect_api_key do
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_filepath: File.expand_path(ENV["ASC_API_KEY_PATH"] || "../../keys/AuthKey.p8", __dir__),
+      in_house: false
+    )
+  end
+
+  desc "Build the release .ipa (Flutter build + Xcode archive/export)"
+  private_lane :build_release do
+    sh("cd ../.. && #{FLUTTER_CMD} build ios --release --no-codesign")
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      export_options: "ExportOptions.plist",
+      output_directory: "./build"
+    )
+  end
+
+  desc "Push a build to TestFlight — Internal testers (no beta review)"
+  lane :internal do
+    connect_api_key
+    build_release
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+
+  desc "Push a build to TestFlight — Alpha closed testing group"
+  lane :alpha do
+    connect_api_key
+    build_release
+    upload_to_testflight(
+      distribute_external: true,
+      groups: ["Alpha Testers"],
+      notify_external_testers: true,
+      changelog: ENV["CHANGELOG"] || "Alpha build"
+    )
+  end
+
+  desc "Push a build to TestFlight — Beta open testing group"
+  lane :beta do
+    connect_api_key
+    build_release
+    upload_to_testflight(
+      distribute_external: true,
+      groups: ["Beta Testers"],
+      notify_external_testers: true,
+      changelog: ENV["CHANGELOG"] || "Beta build"
+    )
+  end
+
+  desc "Submit a build to the App Store (uploaded, not auto-submitted for review)"
+  lane :production do
+    connect_api_key
+    build_release
+    upload_to_app_store(
+      submit_for_review: false,
+      automatic_release: false,
+      force: true,
+      skip_screenshots: true,
+      skip_metadata: true
+    )
+  end
+end

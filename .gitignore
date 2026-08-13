@@ -43,3 +43,28 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# fvm
+.fvm/flutter_sdk
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+**/fastlane/readme.md
+
+# Ruby / bundler
+/.bundle/
+vendor/bundle/
+
+# Secrets & signing — see keys/README.md and .env.example
+.env
+android/key.properties
+/keys/*
+!/keys/README.md
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision

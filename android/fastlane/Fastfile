@@ -1,0 +1,67 @@
+env_file = File.expand_path("../../.env", __dir__)
+Dotenv.overload(env_file) if File.exist?(env_file)
+
+default_platform(:android)
+
+FLUTTER_CMD = ENV["FVM"] == "false" ? "flutter" : "fvm flutter"
+AAB_PATH = "../build/app/outputs/bundle/release/app-release.aab"
+
+platform :android do
+  before_all do
+    sh("cd .. && #{FLUTTER_CMD} pub get")
+  end
+
+  desc "Build the release app bundle (.aab)"
+  private_lane :build_release do
+    sh("cd .. && #{FLUTTER_CMD} build appbundle --release")
+  end
+
+  desc "Push a build to the Internal testing track"
+  lane :internal do
+    build_release
+    upload_to_play_store(
+      track: "internal",
+      aab: AAB_PATH,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Push a build to the Alpha (closed testing) track"
+  lane :alpha do
+    build_release
+    upload_to_play_store(
+      track: "alpha",
+      aab: AAB_PATH,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Push a build to the Beta (open testing) track"
+  lane :beta do
+    build_release
+    upload_to_play_store(
+      track: "beta",
+      aab: AAB_PATH,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Upload a build to Production (kept as a draft — publish manually in Play Console)"
+  lane :production do
+    build_release
+    upload_to_play_store(
+      track: "production",
+      aab: AAB_PATH,
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

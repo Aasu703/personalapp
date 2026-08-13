@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/auth/session_store.dart';
+import '../../../../core/logger/app_logger.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../domain/entities/auth_result.dart';
@@ -30,10 +31,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final data = ApiClient.data(response);
       await _storeTokensFrom(data);
       final userJson = data['user'];
+      AppLogger.info('Login succeeded for $email');
       return AuthResult.success(
         user: userJson is Map ? User.fromJson(Map<String, dynamic>.from(userJson)) : null,
       );
     } on DioException catch (e) {
+      AppLogger.error('Login failed for $email', e);
       return AuthResult.failure(_message(e));
     }
   }
@@ -49,8 +52,10 @@ class AuthRepositoryImpl implements AuthRepository {
         '/api/auth/register',
         data: {'name': name, 'email': email, 'password': password},
       );
+      AppLogger.info('Signup submitted for $email');
       return const AuthResult.success();
     } on DioException catch (e) {
+      AppLogger.error('Signup failed for $email', e);
       return AuthResult.failure(_message(e));
     }
   }

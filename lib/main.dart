@@ -1,19 +1,24 @@
-import 'package:cookie_jar/cookie_jar.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/app.dart';
 import 'core/auth/session_store.dart';
 import 'core/constants/route_paths.dart';
 import 'core/di/providers.dart';
+import 'core/logger/app_logger.dart';
 import 'core/navigation/app_navigator.dart';
 import 'core/network/api_client.dart';
+import 'firebase_options.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'core/storage/persistent_cookie_jar.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final cookieJar = kIsWeb ? null : await PersistentCookieJarBuilder.create();
   final sessionStore = SessionStore(const FlutterSecureStorage());
@@ -24,6 +29,7 @@ Future<void> main() async {
   final dio = ApiClient.create(
     cookieJar: cookieJar,
     sessionStore: sessionStore,
+    talker: AppLogger.talker,
     onSessionExpired: () async {
       await cookieJar?.deleteAll();
       container.read(currentUserProvider.notifier).state = null;
@@ -36,9 +42,7 @@ Future<void> main() async {
 
   container = ProviderContainer(
     overrides: [
-      cookieJarProvider.overrideWithValue(
-        cookieJar ?? PersistCookieJar(),
-      ),
+
       secureStorageProvider.overrideWithValue(const FlutterSecureStorage()),
       sessionStoreProvider.overrideWithValue(sessionStore),
       dioProvider.overrideWithValue(dio),

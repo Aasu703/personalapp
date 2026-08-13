@@ -56,6 +56,14 @@ status (400/401/403/404/409/422/429).
 Append a dated entry here each time you finish meaningful work, especially
 anything touching the contract above.
 
+- 2026-08-06 — Added Talker-based logging for debugging. New central
+  `core/logger/app_logger.dart` wraps a single `Talker` instance (enabled only in
+  debug/profile builds via `kDebugMode`, so no auth data in release logs); a
+  `TalkerDioLogger` interceptor added to `ApiClient` logs every request/response
+  with `Authorization`, `X-CSRF-Token`, `Cookie`, and `Set-Cookie` header values
+  redacted. `talkerProvider` wiring and `TalkerDioLoggerSettings` configured so
+  httpMethod/request/response data print for debugging. No backend contract
+  change — logging only. `flutter analyze`: 0 issues; `flutter test`: 3 passing.
 - 2026-08-05 — (external review) Diagnosed issues #1–#5 above; confirmed backend
   builds clean after Cline's own fix to container.ts/app.ts.
 - 2026-08-05 — Flutter auth networking reworked to match the live contract:
