@@ -42,7 +42,6 @@ Future<void> main() async {
 
   container = ProviderContainer(
     overrides: [
-
       secureStorageProvider.overrideWithValue(const FlutterSecureStorage()),
       sessionStoreProvider.overrideWithValue(sessionStore),
       dioProvider.overrideWithValue(dio),
@@ -50,9 +49,6 @@ Future<void> main() async {
   );
 
   runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const MeroApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const MeroApp()),
   );
 }
