@@ -30,7 +30,9 @@ class FinanceRepositoryImpl implements FinanceRepository {
           if (category != null && category.isNotEmpty) 'category': category,
         },
       );
-      return ApiClient.listData(response).map(TransactionModel.fromJson).toList();
+      return ApiClient.listData(
+        response,
+      ).map(TransactionModel.fromJson).toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
