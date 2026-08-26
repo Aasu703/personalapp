@@ -171,3 +171,26 @@ anything touching the contract above.
     beyond what type-checking + the existing integration test already
     cover; add real endpoint tests when `/api/finance` etc. get exercised
     for real).
+- 2026-08-26 — Backend is now deployed on Render at
+  `https://sockettest-api.onrender.com` (service name `sockettest-api` per
+  `render.yaml`). `meroapp`'s `AppConfig.apiBaseUrl` fallback (used when no
+  `--dart-define=API_BASE_URL` is passed) now points here instead of
+  `localhost`/`10.0.2.2` — this was the root cause of auth failing during
+  Play Console internal testing (release builds can't reach a loopback
+  address, and Android release blocks cleartext HTTP anyway; this URL is
+  HTTPS so both problems are gone).
+  - Found and fixed a real bug while testing connectivity: `POST
+    /api/auth/register` hung indefinitely (not an error — zero bytes, no
+    timeout) because `NodemailerOtpSender`'s transporter
+    (`infrastructure/email/nodemailer.otp-sender.ts`) had no
+    `connectionTimeout`/`greetingTimeout`/`socketTimeout` set, so an
+    unreachable/misconfigured SMTP host hangs the whole request forever
+    instead of failing. Added 10s timeouts on all three — same fix covers
+    both `sendOtpEmail` and `sendPasswordResetEmail` since they share one
+    transporter. **Still needs verification**: whoever set the Render env
+    vars should double check `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`
+    are correct and the provider is actually reachable from Render's
+    network — the timeout fix makes failures visible (500 instead of a
+    hang) but doesn't fix a bad SMTP config itself. `/health` and
+    `/api/auth/login` were confirmed working end-to-end against the live
+    deployment before this fix.
