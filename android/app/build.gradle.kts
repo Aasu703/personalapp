@@ -30,6 +30,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        resValues = true
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.trust.meroapp"
@@ -39,6 +43,21 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "env"
+    productFlavors {
+        // Same applicationId for both — google-services.json is only
+        // registered for com.trust.meroapp, and a suffix would break
+        // Firebase init for that flavor.
+        create("local") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp (Local)")
+        }
+        create("production") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp")
+        }
     }
 
     signingConfigs {

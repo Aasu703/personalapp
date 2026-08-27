@@ -1,11 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:talker/talker.dart';
 
-/// Central [Talker] instance for app-wide logging.
-///
-/// Console output and detailed network logging are only enabled in debug /
-/// profile builds. In release builds [Talker.enabled] is false and all log
-/// calls become no-ops, so no sensitive data leaks into release logs.
 class AppLogger {
   AppLogger._();
 
@@ -37,12 +32,20 @@ class AppLogger {
     talker.info(message, error, stackTrace);
   }
 
-  static void verbose(dynamic message, [Object? error, StackTrace? stackTrace]) {
+  static void verbose(
+    dynamic message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
     if (!enabled) return;
     talker.verbose(message, error, stackTrace);
   }
 
-  static void warning(dynamic message, [Object? error, StackTrace? stackTrace]) {
+  static void warning(
+    dynamic message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
     if (!enabled) return;
     talker.warning(message, error, stackTrace);
   }
@@ -52,7 +55,11 @@ class AppLogger {
     talker.error(message, error, stackTrace);
   }
 
-  static void critical(dynamic message, [Object? error, StackTrace? stackTrace]) {
+  static void critical(
+    dynamic message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
     if (!enabled) return;
     talker.critical(message, error, stackTrace);
   }

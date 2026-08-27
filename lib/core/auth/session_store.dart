@@ -1,8 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Holds the bearer `accessToken` and `csrfToken` that the backend returns in
-/// JSON bodies (not cookies). Values are mirrored to secure storage so a valid
-/// session can survive an app restart.
 class SessionStore {
   SessionStore(this._storage);
 
