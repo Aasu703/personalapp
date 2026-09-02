@@ -17,8 +17,9 @@ class AppConfig {
   /// Base URL for the backend API.
   ///
   /// Resolution order: `--dart-define=API_BASE_URL=...` (manual override,
-  /// e.g. a LAN IP on a real device) > `.env.local`/`.env.production`
-  /// (loaded via [load]) > the hardcoded production fallback.
+  /// e.g. a LAN IP on a real device) > `.env.local`/`.env.staging`/
+  /// `.env.production` (loaded via [load]) > the hardcoded production
+  /// fallback.
   static String get apiBaseUrl {
     if (_envBaseUrl.isNotEmpty) return _envBaseUrl;
     final dotenvUrl = dotenv.env['API_BASE_URL'];

@@ -15,6 +15,21 @@ emulator). All responses: `{ success: boolean, message: string, data?: T }`.
 Errors use the same envelope with `success: false` and an appropriate HTTP
 status (400/401/403/404/409/422/429).
 
+**Three environments, both sides now agree on `NODE_ENV`/flavor names**
+(added 2026-08-31 — see Session Log):
+| Env | Backend `NODE_ENV` | Backend base URL | Flutter flavor/entrypoint |
+|---|---|---|---|
+| development | `development` | `http://localhost:5000` / `http://10.0.2.2:5000` | `local` / `lib/main_local.dart` |
+| staging | `staging` | `https://sockettest-api-staging.onrender.com` | `staging` / `lib/main_staging.dart` |
+| production | `production` | `https://sockettest-api.onrender.com` | `production` / `lib/main_production.dart` |
+
+`staging` is validated by `env.ts` exactly like `production` (real secrets,
+real SMTP, non-localhost `CLIENT_URL`) and gets secure cookies + JSON logs
+via the new `isDeployedEnv` flag — it is a real deployed HTTPS environment,
+not a relaxed one. Store-release fastlane lanes (internal/alpha/beta/
+production tracks) are unaffected and always build against the production
+flavor — `staging` is for QA builds only.
+
 **Auth model — read carefully, this is where most integration bugs will happen:**
 - `accessToken` is returned in the **JSON body** of `login` and `refresh`
   responses. It is a bearer token — the client must send
@@ -194,3 +209,29 @@ anything touching the contract above.
     hang) but doesn't fix a bad SMTP config itself. `/health` and
     `/api/auth/login` were confirmed working end-to-end against the live
     deployment before this fix.
+- 2026-08-31 — (Claude) Added a proper `staging` environment on both sides,
+  no breaking changes to the existing `development`/`production` contract:
+  - Backend: `NODE_ENV` now accepts `staging`. New `isDeployedEnv` export in
+    `shared/config/env.ts` (`true` for `staging`/`production`) replaces the
+    scattered `NODE_ENV === "production"` checks in `container.ts` (cookie
+    `secure` flag, OTP-sender dev-mode bypass) and `logger.ts` (JSON vs.
+    pretty logs, default log level) — staging now gets secure cookies and
+    JSON logs like production, and actually sends real OTP/reset emails via
+    SMTP instead of silently dev-logging them. The `env.ts` secret/SMTP/
+    CLIENT_URL production-only validation (`prodEnvSchema`, renamed
+    `deployedEnvSchema`) now also runs for `staging`. Added a second Render
+    service block to `render.yaml` (`sockettest-api-staging`,
+    `NODE_ENV=staging`) — separate secrets, separate DB/SMTP config, its own
+    `sync: false` vars to fill in on Render.
+  - Flutter: added a third flavor, `staging`, matching the existing
+    `local`/`production` pattern — `lib/main_staging.dart` (loads
+    `.env.staging`), `.env.staging` (`API_BASE_URL=https://sockettest-api-staging.onrender.com`,
+    update once the Render service above is actually created), and an
+    Android `productFlavors` entry in `android/app/build.gradle.kts`
+    (`resValue app_name = "MeroApp (Staging)"`). iOS needs no scheme change
+    — its fastlane lane never passes `--flavor`, so `flutter run -t
+    lib/main_staging.dart` works there without touching the Xcode project,
+    same as it already did for `local`.
+  - Nothing about the auth/CSRF/cookie *shapes* in this contract changed —
+    staging speaks the exact same API as production, just against its own
+    database/secrets so QA testing can't touch prod data.

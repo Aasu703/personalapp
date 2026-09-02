@@ -47,12 +47,16 @@ android {
 
     flavorDimensions += "env"
     productFlavors {
-        // Same applicationId for both — google-services.json is only
+        // Same applicationId for all three — google-services.json is only
         // registered for com.trust.meroapp, and a suffix would break
         // Firebase init for that flavor.
         create("local") {
             dimension = "env"
             resValue("string", "app_name", "MeroApp (Local)")
+        }
+        create("staging") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp (Staging)")
         }
         create("production") {
             dimension = "env"
