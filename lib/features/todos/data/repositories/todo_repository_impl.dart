@@ -44,7 +44,8 @@ class TodoRepositoryImpl implements TodoRepository {
         '/api/todos',
         data: {
           'title': title,
-          if (description != null && description.isNotEmpty) 'description': description,
+          if (description != null && description.isNotEmpty)
+            'description': description,
           if (dueDate != null) 'dueDate': dueDate.toIso8601String(),
           'priority': priority.name,
         },
