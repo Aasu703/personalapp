@@ -4,7 +4,7 @@ Dotenv.overload(env_file) if File.exist?(env_file)
 default_platform(:android)
 
 FLUTTER_CMD = ENV["FVM"] == "false" ? "flutter" : "fvm flutter"
-AAB_PATH = "../build/app/outputs/bundle/release/app-release.aab"
+AAB_PATH = "../build/app/outputs/bundle/productionRelease/app-production-release.aab"
 
 platform :android do
   before_all do
@@ -13,7 +13,7 @@ platform :android do
 
   desc "Build the release app bundle (.aab)"
   private_lane :build_release do
-    sh("cd .. && #{FLUTTER_CMD} build appbundle --release")
+    sh("cd .. && #{FLUTTER_CMD} build appbundle --release --flavor production -t lib/main_production.dart")
   end
 
   desc "Push a build to the Internal testing track"

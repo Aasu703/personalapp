@@ -5,7 +5,7 @@ import 'package:talker/talker.dart';
 
 import '../auth/session_store.dart';
 import '../logger/app_logger.dart';
-import '../../features/auth/data/repositories/firebase_auth_repository_impl.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/forgot_password.dart';
@@ -44,7 +44,7 @@ final currentUserProvider = StateProvider<User?>((ref) => null);
 
 // ---- Auth ----
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => FirebaseAuthRepositoryImpl(),
+  (ref) => AuthRepositoryImpl(ref.watch(dioProvider), ref.watch(sessionStoreProvider)),
 );
 
 final loginProvider = Provider<Login>((ref) => Login(ref.watch(authRepositoryProvider)));

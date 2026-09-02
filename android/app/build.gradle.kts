@@ -30,6 +30,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        resValues = true
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.trust.meroapp"
@@ -41,10 +45,29 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "env"
+    productFlavors {
+        // Same applicationId for all three — google-services.json is only
+        // registered for com.trust.meroapp, and a suffix would break
+        // Firebase init for that flavor.
+        create("local") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp (Local)")
+        }
+        create("staging") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp (Staging)")
+        }
+        create("production") {
+            dimension = "env"
+            resValue("string", "app_name", "MeroApp")
+        }
+    }
+
     signingConfigs {
         if (hasKeystoreProperties) {
             create("release") {
-                storeFile = file(keystoreProperties["storeFile"] as String)
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
