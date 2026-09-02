@@ -17,7 +17,9 @@ class TodoModel {
       completedAt: json['completedAt'] != null
           ? DateTime.tryParse(json['completedAt'] as String)
           : null,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 
